@@ -1,0 +1,30 @@
+# Environment variables (CRITICAL: Never Commit this)
+.env
+
+# Misc
+dist
+snippets
+/generated/prisma
+
+#Dependencies
+node_modules
+npm-debug.log
+
+# Tests
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Prisma
+*.sqlite
+.sqlite-journal
+
+# IDE settings
+.vscode/
+.idea/
+
+# OD junk
+.DS_Store
+Thumbs.db
