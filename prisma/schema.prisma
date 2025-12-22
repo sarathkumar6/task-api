@@ -12,11 +12,14 @@ datasource db {
   provider = "postgresql"
 }
 
+// 1. Enum for Roles
 enum Role {
   USER
   ADMIN
 }
 
+
+// 2. The Updated User Model
 model User {
   id        Int       @id @default(autoincrement())
   username  String    @unique
@@ -25,5 +28,21 @@ model User {
   role      Role      @default(USER) // admin or "user
   createdAt DateTime  @default(now())
   // needed this to map to right table name
+  tasks   Task[]
   @@map("users")
+}
+
+
+// 3. The NEW Task Model
+model Task {
+  id            Int       @id   @default(autoincrement())
+  title         String
+  description   String? // Optional
+  isComplete    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  userId        Int   // Foreign Key Column
+  user          User    @relation(fields: [userId], references: [id])
+
+  @@map("tasks")
 }

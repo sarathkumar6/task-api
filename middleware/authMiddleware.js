@@ -28,7 +28,7 @@ const authenticationToken = (request, response, next) => {
 
 const ownershipCheck = (request, response, next) => {
     // Who is requesting?
-    const requesterId = request.user.user_id;
+    const requesterId = request.user.userId;
     console.log("requesterId: ", requesterId);
     // What is the role of the requestor?
     const requesterRole = request.user.role;

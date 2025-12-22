@@ -10,7 +10,7 @@ A production-ready Node.js REST API built for scalability and observability
 * **Testing:** Jest, Supertest
 
 
-## 🚀 Getting Started
+## 🚀Getting Started
 
 ```bash
     git clone [https://github.com/YOUR_USERNAME/task-api.git](https://github.com/YOUR_USERNAME/task-api.git)

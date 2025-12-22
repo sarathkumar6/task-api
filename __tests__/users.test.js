@@ -14,7 +14,7 @@ jest.mock('../db', () => ({
 
 const generateToken = (id, role = 'user') => {
     console.log("PROCESS.ENV.JWT_SECRET IS: ", process.env.JWT_SECRET);
-    return jwt.sign({ user_id: id, role }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    return jwt.sign({ userId: id, role }, process.env.JWT_SECRET, { expiresIn: '15m' });
 };
 describe('Should test users endpoint', () => {
 
@@ -24,9 +24,9 @@ describe('Should test users endpoint', () => {
 
     it('should return user id must be a number', async () => {
         const token = generateToken(1, 'user');
-        const user_id = 'xyz';
+        const userId = 'xyz';
         const response = await request(app)
-        .get(`/users/${user_id}`)
+        .get(`/users/${userId}`)
         .set('Authorization', `Bearer ${token}`);
         console.log("response.body: ", response.body);
         expect(response.statusCode).toEqual(400)

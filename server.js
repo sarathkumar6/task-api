@@ -6,6 +6,7 @@ const db = require('./db');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const testdbRoutes = require('./routes/testdb');
+const taskRoutes = require('./routes/tasks');
 const simulateErrorRoutes = require('./routes/simulateError');
 const debugStackRoutes = require('./routes/debug');
 const {authenticationToken} = require('./middleware/authMiddleware');
@@ -50,6 +51,9 @@ app.use('/users', authenticationToken, userRoutes); // you're mounting a sub-app
 
 // Test DB
 app.use('/test-db', testdbRoutes);
+
+// Tasks endpoints
+app.use('/tasks', taskRoutes);
 
 // Health Endpoint
 app.get('/health', (request, response) => {
