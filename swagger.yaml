@@ -1,0 +1,55 @@
+openapi: 3.0.0
+info:
+  title: TASK API
+  description: A secure, relational API for task management.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+
+# Security Scheme (JWT Setup)
+components:
+  securitySchemas:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+# The Routes
+paths:
+  /health:
+    get:
+      summary: Check server health
+      responses:
+        200:
+          description: Server is up and running
+  /auth/login:
+    post:
+      summary: Login to get an access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                passwod:
+                  type: string
+                  example: password123
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: The JWT to use for protected routes
+        401:
+          description: Invalid credentials
+                

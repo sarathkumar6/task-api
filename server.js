@@ -2,7 +2,6 @@ const morgan = require('morgan');
 const logger = require('./utils/logger');
 const express = require('express');
 const cookie = require('cookie-parser');
-const db = require('./db');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const testdbRoutes = require('./routes/testdb');
@@ -23,6 +22,10 @@ const morganMiddleware = morgan(
 const app = express(); // Returns express application instance
 const requestBodyParser = express.json(); // Parses request body as JSON
 const cookieParser = cookie();// Parses cookies from the request
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+
+const swaggerDocument = YAML.load('./swagger.yaml');
 
 app.use(helmet());
 app.use(requestBodyParser);
@@ -38,6 +41,7 @@ const limiter = rateLimit({
 });
 // Apply to all requests
 app.use(limiter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use((request, response, next) => {
     logger.info(`[Middleware] Processing request for url ${request.url}`);
     next();
