@@ -1,5 +1,5 @@
 const request = require('supertest'); // Tool that fakes request
-const app = require('../server'); // Import the app without starting port 3000 on a server
+const app = require('../app'); // Import the app without starting port 3000 on a server
 
 describe('Sanity check: Health Endpoint', () => {
     it('should return 200 and a success message', async () => {

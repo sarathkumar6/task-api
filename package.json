@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "prisma generate",
-    "start": "node server.js",
-    "test": "jest"
+    "start": "node app.js",
+    "test": "jest --detectOpenHandles"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true
   },
   "keywords": [],
   "author": "",

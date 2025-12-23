@@ -1,7 +1,7 @@
 const request = require('supertest'); // Fake HTTP requests
 const jwt = require('jsonwebtoken'); // Importing jsonwebtoken to generate fake tokens
 process.env.JWT_SECRET = 'super_secret_random_string_do_not_share';
-const app = require('../server'); // Importing application
+const app = require('../app'); // Importing application
 const db = require('../db'); // We will be swapping it with a mock one
 
 jest.mock('../db', () => ({
