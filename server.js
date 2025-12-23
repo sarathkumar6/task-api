@@ -6,9 +6,12 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const testdbRoutes = require('./routes/testdb');
 const taskRoutes = require('./routes/tasks');
+const labRoutes = require('./routes/lab');
 const simulateErrorRoutes = require('./routes/simulateError');
 const debugStackRoutes = require('./routes/debug');
 const {authenticationToken} = require('./middleware/authMiddleware');
+const { globalLimiter, authLimiter } = require('./middleware/limiter');
+const corsMiddleware = require('./middleware/security');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morganMiddleware = morgan(
@@ -31,6 +34,9 @@ app.use(helmet());
 app.use(requestBodyParser);
 app.use(cookieParser); 
 app.use(morganMiddleware);
+app.use(corsMiddleware);
+// Apply global rate limiter
+app.use(globalLimiter);
 // This is a global limiter. You can also make specific ones for /login.
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -48,7 +54,7 @@ app.use((request, response, next) => {
 });
 
 // Authorization Endpoint
-app.use('/auth', authRoutes); // you're mounting a sub-application
+app.use('/auth', authLimiter, authRoutes); // you're mounting a sub-application
 
 // Users endpoints
 app.use('/users', authenticationToken, userRoutes); // you're mounting a sub-application
@@ -58,6 +64,9 @@ app.use('/test-db', testdbRoutes);
 
 // Tasks endpoints
 app.use('/tasks', taskRoutes);
+
+// Lab Routes
+app.use('/lab', labRoutes);
 
 // Health Endpoint
 app.get('/health', (request, response) => {

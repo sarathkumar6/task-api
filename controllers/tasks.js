@@ -1,17 +1,23 @@
 const db = require('../db');
 const AppError = require('../utils/AppError');
+const logger = require('../utils/logger');
 
 const createTask = async (request, response, next) => {
     try {
-        console.log(
-            "Tasks Controller createTask -> USER IS:", request.user
-        )
+        logger.info(
+            `Task creation is initiated by User: ${request.user.userId}`
+        );
         if (!request.user) {
+            logger.warn('Task createion attempted without valid suer context');
             return next(new AppError('User not authenticated correctly', 401));
         }
         const { title, description } = request.body
         const { user } = request;
         const userId = user.userId;
+
+        logger.debug(`Task Payload: ${JSON.stringify({
+            title, description, userId
+        })}`)
     const newTask = await db.task.create({
         data: {
             title,
@@ -19,10 +25,13 @@ const createTask = async (request, response, next) => {
             userId: userId // Linking the Foreign key
         }
     });
-
+    logger.info(`Task created successfully. Task ID: ${newTask.id}`)
     response.status(201).json(newTask);
 
     } catch (error) {
+        logger.error(`Create Task Failed: ${error.message}`, {
+            stack: error.stack
+        });
         next(error);
     }
 };
@@ -31,17 +40,53 @@ const getMyTasks = async (request, response, next) => {
     try {
         const userId = request.user.userId;
 
-        const tasks = await db.task.findMany({
+        logger.info(`Fetching tasks for User: ${userId}`);
+        
+        // Extract query params with defaults
+        // Default to page 1 and 6 items per page
+        const { query } = request;
+        const page = parseInt(query.page) || 1;
+        const limit = parseInt(query.limit) || 6;
+        const cursor = query.cursor ? parseInt(query.cursor) : undefined;
+        const { isComplete, sort } = request.query;
+
+        // ToDo: Implementing cursor pagination over offset pagination
+        
+        const queryOptions = {
             where: {
-                userId: userId // Filter particular user
+                userId: userId,
+                ...(isComplete !== undefined && { isComplete: isComplete === 'true' })
             },
+            take: limit,
             orderBy: {
-                createdAt: 'desc' // by latest first
+                id: sort === 'asc' ? 'asc' : 'desc'
+            }
+        };
+
+        if (cursor) {
+            queryOptions.cursor ={
+                id: cursor
+            }
+            queryOptions.skip = 1;
+        }
+
+        // Fetch data
+        const tasks = await db.task.findMany(queryOptions);
+        logger.info(`Fetched ${tasks.length} tasks for User: ${userId}`)
+        // Next cursor
+        const lastTask = tasks[tasks.length - 1];
+        const nextCursor = tasks.length === limit ? lastTask.id : null;
+        response.set('Cache-Control', 'private, max-age=30');
+
+        response.json({
+            data: tasks,
+            meta: {
+                count: tasks.length,
+                nextCursor: nextCursor
             }
         });
-
-        response.json(tasks)
     } catch (error) {
+        logger.error(`Fetch Tasks Failed: ${error.message}`)
         next(error);
     }
 };
