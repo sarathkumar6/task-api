@@ -7,7 +7,6 @@ const { ownershipCheck } = authMiddleware;
 const AppError = require('../utils/AppError');
 const validateRequest = (request, response, next) => {
     const errors = validationResult(request);
-    console.log("Errors: ", errors);
     if (!errors.isEmpty()) {
         return next(new AppError('Validation Failed', 400, errors.array()));
     }
