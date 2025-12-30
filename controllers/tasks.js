@@ -18,15 +18,15 @@ const createTask = async (request, response, next) => {
         logger.debug(`Task Payload: ${JSON.stringify({
             title, description, userId
         })}`)
-    const newTask = await db.task.create({
-        data: {
-            title,
-            description,
-            userId: userId // Linking the Foreign key
-        }
-    });
-    logger.info(`Task created successfully. Task ID: ${newTask.id}`)
-    response.status(201).json(newTask);
+        const newTask = await db.task.create({
+            data: {
+                title,
+                description,
+                userId: userId // Linking the Foreign key
+            }
+        });
+        logger.info(`Task created successfully. Task ID: ${newTask.id}`)
+        response.status(201).json(newTask);
 
     } catch (error) {
         logger.error(`Create Task Failed: ${error.message}`, {
@@ -41,7 +41,7 @@ const getMyTasks = async (request, response, next) => {
         const userId = request.user.userId;
 
         logger.info(`Fetching tasks for User: ${userId}`);
-        
+
         // Extract query params with defaults
         // Default to page 1 and 6 items per page
         const { query } = request;
@@ -51,7 +51,7 @@ const getMyTasks = async (request, response, next) => {
         const { isComplete, sort } = request.query;
 
         // ToDo: Implementing cursor pagination over offset pagination
-        
+
         const queryOptions = {
             where: {
                 userId: userId,
@@ -64,7 +64,7 @@ const getMyTasks = async (request, response, next) => {
         };
 
         if (cursor) {
-            queryOptions.cursor ={
+            queryOptions.cursor = {
                 id: cursor
             }
             queryOptions.skip = 1;
@@ -123,8 +123,8 @@ const updateTask = async (request, response, next) => {
         const result = await db.task.updateMany({
             where: { id: parseInt(id), userId: userId },
             data: {
-                ...(title && {title: title}),
-                ...(description && {description: description})
+                ...(title && { title: title }),
+                ...(description && { description: description })
             }
         });
 

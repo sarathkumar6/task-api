@@ -12,7 +12,7 @@ router.post('/register', async (request, response) => {
 
         // Check incoming data
         if (!username || !email || !password) {
-            return res.status(400).json({ error: 'All fields are required' });
+            return response.status(400).json({ error: 'All fields are required' });
         }
 
         // Hash the password

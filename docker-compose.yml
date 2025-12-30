@@ -1,0 +1,26 @@
+services:
+  #1. task api
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:61289@db:5432/task_db
+      - JWT_SECRET={JWT_SECRET}
+    depends_on:
+      - db
+  #2. Postgres DB
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 61289
+      POSTGRES_DB: task_db
+    ports:
+      - "5423:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  
+volumes:
+  pgdata:

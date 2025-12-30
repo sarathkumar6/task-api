@@ -6,7 +6,8 @@
   "scripts": {
     "postinstall": "prisma generate",
     "start": "node app.js",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "dev": "node --watch app.js"
   },
   "jest": {
     "testEnvironment": "node",
