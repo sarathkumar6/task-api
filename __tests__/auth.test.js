@@ -9,7 +9,28 @@ describe('Auth Integration & Task Security', () => {
         userId: 3,
         email: 'srdev1@akkodis.com'
     };
-    const validToken = jwt.sign(userPayload, process.env.JWT_SECRET);
+    let validToken;
+    const TEST_USER_ID = 3;
+    beforeAll(async () => {
+        // 1. Ensure the user exists in the transient DB first
+        await db.user.upsert({
+            where: { id: TEST_USER_ID },
+            update: {},
+            create: {
+                id: TEST_USER_ID,
+                email: 'architect@test.com',
+                username: 'test_architect',
+                role: 'user'
+            }
+        });
+
+        // 2. Generate the token using the SAME secret the app uses
+        // Ensure your CI environment has this secret set
+        validToken = jwt.sign(
+            { userId: TEST_USER_ID, email: 'architect@test.com' }, 
+            process.env.JWT_SECRET || 'test_secret_for_ci'
+        );
+    });
 
     // Clean up
     afterAll(async () => {
@@ -37,7 +58,7 @@ describe('Auth Integration & Task Security', () => {
                 description: 'Testing JWT Middleware'
             });
             expect(res.statusCode).toBe(201);
-            expect(res.body.userId).toBe(3);
+            expect(res.body.userId).toBe(TEST_USER_ID);
         })
     })
 })
