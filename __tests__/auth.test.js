@@ -2,7 +2,7 @@ const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const app = require('../app'); // task-api express app
 const db = require('../db'); // Prisma Client
-
+const crypto = require('crypto');
 
 describe('Auth Integration & Task Security', () => {
     const userPayload = {
@@ -20,7 +20,8 @@ describe('Auth Integration & Task Security', () => {
                 id: TEST_USER_ID,
                 email: 'architect@test.com',
                 username: 'test_architect',
-                role: 'user'
+                role: 'user',
+                password: crypto.randomBytes(16).toString('hex')
             }
         });
 
