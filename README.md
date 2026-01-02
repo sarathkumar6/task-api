@@ -1,4 +1,4 @@
-![Task API CI Pipeline](https://github.com/sarathkumar6/task-api/actions/workflows/ci.yml/badge.svg)
+![Task API CI Pipeline](https://github.com/sarathkumar6/task-api/actions/workflows/ci.yml/badge.svg?branch=main)
 
 # Task API
 
