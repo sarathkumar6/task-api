@@ -6,7 +6,8 @@
   "scripts": {
     "postinstall": "prisma generate",
     "start": "node app.js",
-    "test": "jest --runInBand --forceExit",
+    "test": "jest --runInBand --forceExit --coverage",
+    "test:ci": "jest --runInBand --forceExit --detectOpenHandles --coverage --coverageThreshold='{\"global\":{\"branches\":80,\"functions\":80,\"lines\":80,\"statements\":80}}'",
     "dev": "node --watch app.js"
   },
   "jest": {
