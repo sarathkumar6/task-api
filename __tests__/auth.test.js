@@ -20,7 +20,7 @@ describe('Auth Integration & Task Security', () => {
                 id: TEST_USER_ID,
                 email: 'architect@test.com',
                 username: 'test_architect',
-                role: 'user',
+                role: 'USER',
                 password: crypto.randomBytes(16).toString('hex')
             }
         });
