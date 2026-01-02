@@ -1,0 +1,55 @@
+# Should integration tests run against real database?
+# NO. It should run against a transient test environment
+#     Like, in GitHub actions, we can spin up a temporary Postgres container
+#     and run tests against that containerized database instance.
+
+name: Task API CI Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 61289
+          POSTGRES_DB: task_db_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d task_db_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run Primsa Migrations
+      run: npx prisma migrate deploy
+      env:
+        DATABASE_URL: postgresql://postgres:61289@localhost:5432/task_db_test
+      
+    - name: Run Integration Tests
+      run: npm run test
+      env:
+        DATABASE_URL: postgresql://postgres:61289@localhost:5432/task_db_test
+        JWT_SECRET: ${{ secrets.JWT_SECRET }} # why set it up for test? Environment parity and security posture. Rotates secret key and complies SOC2 guidelines

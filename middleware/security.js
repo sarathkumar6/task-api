@@ -3,7 +3,9 @@ const cors = require('cors');
 const whitelist = [
     'http://localhost:5173', // Your React/Vite Frontend
     'http://localhost:4200', // Your Angular Frontend
-    'https://my-production-app.com'
+    'https://my-production-app.com',
+    'http://localhost:3000',
+    'http://localhost:8080'
 ];
 
 const corsOptions = {
@@ -12,7 +14,8 @@ const corsOptions = {
         if (!origin) {
             return callback(null, true);
         }
-
+        console.log('CORS Origin:', origin);
+        console.log('Whitelist:', whitelist);
         if (whitelist.indexOf(origin) !== -1) {
             // Origin is in the whitelist. Allow it
             callback(null, true);

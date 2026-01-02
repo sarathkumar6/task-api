@@ -2,18 +2,15 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const db = require('../db');
+const validate = require('../middleware/validate');
+const { registerSchema } = require('../schemas/userSchemas');
 const jwt = require('jsonwebtoken');
 
 console.log("router contains:", Object.keys(router)); // Logs the keys of the router object
 
-router.post('/register', async (request, response) => {
+router.post('/register', validate(registerSchema), async (request, response) => {
     try {
         const { username, email, password } = request.body;
-
-        // Check incoming data
-        if (!username || !email || !password) {
-            return response.status(400).json({ error: 'All fields are required' });
-        }
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);

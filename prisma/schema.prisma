@@ -46,3 +46,12 @@ model Task {
 
   @@map("tasks")
 }
+
+
+// The NEW Product Model
+model Product {
+  id        Int   @id @default(autoincrement())
+  name      String
+  inventory Int   @default(0)
+  version   Int   @default(0) // TO BE UPDATED
+}

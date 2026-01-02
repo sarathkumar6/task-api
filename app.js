@@ -9,6 +9,7 @@ const taskRoutes = require('./routes/tasks');
 const labRoutes = require('./routes/lab');
 const simulateErrorRoutes = require('./routes/simulateError');
 const debugStackRoutes = require('./routes/debug');
+const shopRoutes = require('./routes/shop');
 const {authenticationToken} = require('./middleware/authMiddleware');
 const { globalLimiter, authLimiter } = require('./middleware/limiter');
 const corsMiddleware = require('./middleware/security');
@@ -23,6 +24,7 @@ const morganMiddleware = morgan(
     }
 )
 const app = express(); // Returns express application instance
+app.use(helmet());
 const requestBodyParser = express.json(); // Parses request body as JSON
 const cookieParser = cookie();// Parses cookies from the request
 const swaggerUi = require('swagger-ui-express');
@@ -30,7 +32,7 @@ const YAML = require('yamljs');
 
 const swaggerDocument = YAML.load('./swagger.yaml');
 
-app.use(helmet());
+//app.use(helmet());
 app.use(requestBodyParser);
 app.use(cookieParser); 
 app.use(morganMiddleware);
@@ -59,6 +61,8 @@ app.use('/auth', authLimiter, authRoutes); // you're mounting a sub-application
 // Users endpoints
 app.use('/users', authenticationToken, userRoutes); // you're mounting a sub-application
 
+// Shop endpoints
+app.use('/shop', shopRoutes);
 // Test DB
 app.use('/test-db', testdbRoutes);
 
@@ -74,7 +78,9 @@ app.get('/health', (request, response) => {
 });
 
 // Debug stack endpoint
-app.get('/debug-stack', debugStackRoutes);
+// NOTE: app.use is like mouting a small router application
+//       app.get is terminal endpoint approach
+app.use('/debug', debugStackRoutes);
 
 // Simulate Error endpoint
 app.get('/simulate-error', simulateErrorRoutes)
@@ -85,6 +91,12 @@ if (require.main === module) {
         logger.info('Server is running on port 3000');
     });
 }
+
+// 2. 404 Handler (If no route matched above)
+app.use((req, res) => {
+    console.log(`404 Not Found: ${req.originalUrl}`);
+  res.status(404).json({ message: "Route not found" });
+});
 
 // Global Error Handler
 app.use((error, request, response, next) => {
@@ -97,7 +109,8 @@ app.use((error, request, response, next) => {
         status: 'error',
         statusCode,
         message,
-        details: error.details || null
+        details: error.details || null,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 });
 
