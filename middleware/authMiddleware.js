@@ -11,16 +11,27 @@ const authenticationToken = (request, response, next) => {
         error.statusCode = 401;
         return next(error);
     }
+
     // Verify the token
     const JWT_SECRET = process.env.JWT_SECRET;
+    // Grabbing the IP Address
+    // x-forwarded-for handles cases where the app is behind a proxy (like Nginx or Docker)
+    const ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
     jwt.verify(token, JWT_SECRET, (error, decodedUser) => {
         if (error) {
             const err = new Error("Access Denied: Invalid or Expored Token");
             err.statusCode = 403;
             return next(err);
         }
-        request.user = decodedUser;
-        console.log("Authentication Success for the User: ", request.user.username);
+        request.user = {
+            userId: decodedUser.userId,
+            id: decodedUser.userId,
+            username: decodedUser.username,
+            role: decodedUser.role,
+            clientIP: ip
+        }
+        console.log("Decoded User Info: ", decodedUser);
+        console.log("Authentication Success for the UserId: ", request.user.userId || request.user.id);
         next();
     })
 

@@ -28,6 +28,7 @@ model User {
   role      Role      @default(USER) // admin or "user
   createdAt DateTime  @default(now())
   // needed this to map to right table name
+  taskCount Int @default(0)
   tasks   Task[]
   @@map("users")
 }
@@ -54,4 +55,19 @@ model Product {
   name      String
   inventory Int   @default(0)
   version   Int   @default(0) // TO BE UPDATED
+}
+
+
+// The AuditLog
+model AuditLog {
+  id            Int       @id @default(autoincrement())
+  action        String  // E.g., TASK_TRANSFER
+  entityType    String  // E.g., TASK
+  entityId      Int     // TASK ID
+  performedBy   Int     // USER ID
+  oldValue      Json?   // Optional: State before { userId: 1 }
+  newValue      Json?   // Optional: State after { userId: 2 }
+  timestamp     DateTime  @default(now())
+  ipAddress     String?   // For security/forensics
+  status        String    // SUCCESS or FAILURE
 }

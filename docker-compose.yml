@@ -4,6 +4,7 @@ services:
     build: .
     ports:
       - "3000:3000"
+      - "51212:51212" # Add this for Prisma Studio
     environment:
       - DATABASE_URL=postgresql://postgres:61289@db:5432/task_db
       - JWT_SECRET={JWT_SECRET}

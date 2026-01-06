@@ -25,6 +25,7 @@ const morganMiddleware = morgan(
 )
 const app = express(); // Returns express application instance
 app.use(helmet());
+app.set('trust proxy', true);
 const requestBodyParser = express.json(); // Parses request body as JSON
 const cookieParser = cookie();// Parses cookies from the request
 const swaggerUi = require('swagger-ui-express');

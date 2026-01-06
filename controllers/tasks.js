@@ -1,6 +1,7 @@
 const db = require('../db');
 const AppError = require('../utils/AppError');
 const logger = require('../utils/logger');
+const { transferTaskOwnership } = require('../services/taskService');
 
 const createTask = async (request, response, next) => {
     try {
@@ -34,6 +35,34 @@ const createTask = async (request, response, next) => {
         });
         next(error);
     }
+};
+
+const transferTask = async (request, response, next) => {
+    try {
+        logger.info('Transfer Task - Not implemented yet');
+        const taskId = request.params.id;
+        const fromUserId = request.user.userId; // Get it from JST Payload
+        const { toUserId } = request.body
+        const clientIP = request.user.ClientIP;
+
+        if (!toUserId) {
+            return response.status(400).json({
+                status: 'error',
+                message: 'toUserId is required in the request body'
+            });
+        }
+        const params = { taskId, fromUserId, toUserId, clientIP };
+        logger.info(`Initiating transfer with params: ${JSON.stringify(params)}`);
+        const updatedTask = await transferTaskOwnership(params);
+
+        response.status(200).json({
+            status: 'Task transferred successfully',
+            data: updatedTask
+        });
+    } catch (error) {
+        next(error);
+    }
+
 };
 
 const getMyTasks = async (request, response, next) => {
@@ -146,4 +175,4 @@ const updateTask = async (request, response, next) => {
     }
 };
 
-module.exports = { createTask, getMyTasks, deleteTask, updateTask };
+module.exports = { createTask, transferTask, getMyTasks, deleteTask, updateTask };
