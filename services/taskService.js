@@ -51,11 +51,11 @@ async function transferTaskOwnership({
       if (!targetUser) {
         const error = new Error("Target user not found.");
         error.statusCode = 404;
-        error.body = { 
-            statusCode: "error", 
-            message: "Target user not found."
-         };
-         console.log("Error Body:", error.body);
+        error.body = {
+          statusCode: "error",
+          message: "Target user not found.",
+        };
+        console.log("Error Body:", error.body);
         throw error;
       }
       // 1. Change the task ownership

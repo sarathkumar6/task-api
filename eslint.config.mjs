@@ -13,6 +13,7 @@ export default [
       "prisma/generated/**",
       "prisma/migrations/**",
       "scripts/snippets/**",
+      "utils/logger.js",
     ],
   },
 
