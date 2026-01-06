@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run linter on staged files (Fast)
+npx lint-staged
+
+# Optional: Run only related tests (Faster than npm rest)
+# npx jest --findRelatedTests --pasWithNoTests
+

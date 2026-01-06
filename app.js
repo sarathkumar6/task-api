@@ -90,6 +90,7 @@ app.use((req, res) => {
 
 // Global Error Handler
 app.use((error, request, response) => {
+    console.log("Global Error Handler Invoked:", error);
   const statusCode = error.statusCode || 500;
   const message = error.message || "Internal Server Error";
 

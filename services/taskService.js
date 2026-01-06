@@ -41,7 +41,8 @@ async function transferTaskOwnership({
         throw error;
       }
       console.log(
-        `Transferring Task ID ${taskId} from User ID ${fromUserId} to User ID ${toUserId}`,
+        `Transferring Task ID ${taskId} from User ID ${fromUserId} to Us
+        er ID ${toUserId}`,
       );
       const targetUser = await tx.user.findUnique({
         where: { id: Number(toUserId) },
@@ -50,6 +51,11 @@ async function transferTaskOwnership({
       if (!targetUser) {
         const error = new Error("Target user not found.");
         error.statusCode = 404;
+        error.body = { 
+            statusCode: "error", 
+            message: "Target user not found."
+         };
+         console.log("Error Body:", error.body);
         throw error;
       }
       // 1. Change the task ownership

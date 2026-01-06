@@ -33,7 +33,7 @@ describe("DB Concurrency and Race Conditions", () => {
 
     const results = await Promise.all(
       /* eslint-disable-next-line no-unused-vars */
-      users.forEach((user) => {
+      users.map((user) => {
         return request(app).post("/shop/buy").send({ productId: product_id });
       }),
     );
