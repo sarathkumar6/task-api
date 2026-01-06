@@ -9,7 +9,9 @@
     "test": "npx prisma db push --accept-data-loss && jest --runInBand --detectOpenHandles --coverage",
     "test:ci": "jest --runInBand --forceExit --coverage --coverageThreshold='{\"global\":{\"branches\":30,\"functions\":45,\"lines\":60,\"statements\":60}}'",
     "db:sync": "prisma db push && prisma generate",
-    "dev": "node --watch app.js"
+    "dev": "node --watch app.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "jest": {
     "testEnvironment": "node",
@@ -38,6 +40,10 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jest": "^29.12.1",
+    "eslint-plugin-prettier": "^5.5.4",
     "jest": "^30.2.0",
     "prisma": "^7.2.0",
     "supertest": "^7.1.4"

@@ -22,41 +22,35 @@ module.exports = {
         },
     }
 **/
-require('dotenv').config();
-const { Pool } = require('pg');
-const { PrismaPg } = require('@prisma/adapter-pg');
-const { PrismaClient } = require('@prisma/client');
+/* eslint-disable no-undef */
+// ... all code in this file will ignore 'no-undef' errors
+require("dotenv").config();
+const { Pool } = require("pg");
+const { PrismaPg } = require("@prisma/adapter-pg");
+const { PrismaClient } = require("@prisma/client");
 
 // Define global variable
 let db;
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
-})
+  connectionString: process.env.DATABASE_URL,
+});
 
 const adapter = new PrismaPg(pool);
 
-// The property is 'datasources', and 'db' matches "datasource db" in your schema
-const prismaOptions = {
-    datasources: {
-        db: {
-            url: process.env.DATABASE_URL,
-        },
-    },
-};
 // Singleton Pattern Logic
-if (process.env.NODE_ENV === 'production') {
-    db = new PrismaClient({
-        adapter
-    });
+if (process.env.NODE_ENV === "production") {
+  db = new PrismaClient({
+    adapter,
+  });
 } else {
-    // Development mode
-    if (!global.prisma) {
-        global.prisma = new PrismaClient({
-            adapter
-        });
-    }
-    db = global.prisma;
+  // Development mode
+  if (!global.prisma) {
+    global.prisma = new PrismaClient({
+      adapter,
+    });
+  }
+  db = global.prisma;
 }
 
-module.exports = db
+module.exports = db;

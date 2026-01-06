@@ -1,16 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { authenticationToken } = require('../middleware/authMiddleware');
-const taskController = require('../db/controllers/tasks');
+const { authenticationToken } = require("../middleware/authMiddleware");
+const taskController = require("../db/controllers/tasks");
 
-console.log('DEBUG CHECK: ', taskController);
+console.log("DEBUG CHECK: ", taskController);
 const { createTask, getMyTasks, deleteTask, updateTask } = taskController;
 
 router.use(authenticationToken);
 
-router.post('/', createTask);
-router.get('/', getMyTasks);
-router.delete('/:id', deleteTask);
-router.patch('/:id', updateTask);
+router.post("/", createTask);
+router.get("/", getMyTasks);
+router.delete("/:id", deleteTask);
+router.patch("/:id", updateTask);
 
 module.exports = router;
