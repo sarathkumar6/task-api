@@ -47,12 +47,21 @@ jobs:
       run: npx prisma migrate deploy
       env:
         DATABASE_URL: postgresql://postgres:61289@localhost:5432/task_db_test
-      
+    - name: Run Prisma Client Generation
+      run: npx prisma generate
+
+    - name: Sync Database Schema
+      # We use db push here because it's a transient DB and 
+      # it ensures the AuditLog table is created even if no migration file exists yet.
+      run: npx prisma db push --accept-data-loss
+      env:
+        DATABASE_URL: postgresql://postgres:61289@localhost:5432/task_db_test
+
     - name: Run Integration Tests
       run: npm run test:ci
       env:
         DATABASE_URL: postgresql://postgres:61289@localhost:5432/task_db_test
-        JWT_SECRET: ${{ secrets.JWT_SECRET }} # why set it up for test? Environment parity and security posture. Rotates secret key and complies SOC2 guidelines
+        JWT_SECRET: ${{ secrets.JWT_SECRET || 'test_secret_for_ci'}} # why set it up for test? Environment parity and security posture. Rotates secret key and complies SOC2 guidelines
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

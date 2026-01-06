@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "start": "node app.js",
-    "test": "jest --runInBand --detectOpenHandles --coverage",
+    "test": "npx prisma db push --accept-data-loss && jest --runInBand --detectOpenHandles --coverage",
     "test:ci": "jest --runInBand --forceExit --coverage --coverageThreshold='{\"global\":{\"branches\":30,\"functions\":45,\"lines\":60,\"statements\":60}}'",
     "db:sync": "prisma db push && prisma generate",
     "dev": "node --watch app.js"

@@ -49,7 +49,7 @@ const limiter = rateLimit({
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 // Apply to all requests
-app.use(limiter);
+//app.use(globalLimiter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use((request, response, next) => {
     logger.info(`[Middleware] Processing request for url ${request.url}`);
