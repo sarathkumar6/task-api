@@ -89,7 +89,8 @@ app.use((req, res) => {
 });
 
 // Global Error Handler
-app.use((error, request, response) => {
+// Use _next here to indicate ignore variable warning unused but the next is needed to catch the error thrown
+app.use((error, request, response, _next) => {
   console.log("Global Error Handler Invoked:", error);
   const statusCode = error.statusCode || 500;
   const message = error.message || "Internal Server Error";

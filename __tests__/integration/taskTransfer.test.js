@@ -131,9 +131,9 @@ describe("Task Transfer ACID Transaction Integration Test", () => {
 
     expect(response.statusCode).toBe(404);
     console.log("response.body: ", response.body);
-    // TODO: Fix the service to return error body
-    //expect(response.body.status).toBe("error");
-    //expect(response.body.message).toBe("Target user not found.");
+    //TODO: Fix the service to return error body
+    expect(response.body.status).toBe("error");
+    expect(response.body.message).toBe("Target user not found.");
 
     // ATOMICITY TEST
     // Even if the code tried to update user A's task count it should have rolleb back

@@ -32,7 +32,7 @@ describe("Should test users endpoint", () => {
     console.dir("response.body: ", response.body);
     expect(response.statusCode).toEqual(400);
     // ToDo: Fix this test by updating the validation message in the route
-    //expect(response.body.details[0].msg).toEqual("User id must be a number.");
+    expect(response.body.details[0].msg).toEqual("User id must be a number.");
   });
 
   it("should return 401 if no token is provided", async () => {
