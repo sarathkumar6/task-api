@@ -22,24 +22,30 @@ jobs:
           SPLUNK_URL: ${{ secrets.SPLUNK_URL }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          # Use the modern V2 command (no hyphen)
-          docker compose up -d db splunk
-          echo "Waiting for database to be ready..."
+          # 1. Create a dummy .env so Docker Compose doesn't complain
+          touch .env
           
-          # Principal Note: The 'ps -q' syntax also works better in V2
-          until docker exec $(docker compose ps -q db) pg_isready -U postgres; do
-            sleep 2
+          # 2. Start services
+          docker compose up -d db splunk
+          
+          # 3. Wait for DB using a more robust selector
+          echo "Waiting for database to be ready..."
+          NEXT_WAIT_TIME=0
+          until [ $NEXT_WAIT_TIME -eq 10 ] || docker compose exec -T db pg_isready -U postgres; do
+            sleep 3
+            NEXT_WAIT_TIME=$((NEXT_WAIT_TIME+1))
           done
-          sleep 15
+          sleep 10
         
       - name: Run Regression Tests
         env:
           SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
+          SPLUNK_URL: ${{ secrets.SPLUNK_URL }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NODE_ENV: development
         run: |
-          # We call test:ci and pass extra flags to generate the JSON file needed for the summary
-          docker compose run --rm api npm run test:ci -- --json --outputFile=test-results.json || true
+          # The -T flag is critical for CI (it disables pseudo-terminal allocation)
+          docker compose run -T --rm api npm run test:ci -- --json --outputFile=test-results.json || true
       
       - name: Generate Failure Summary
         if: failure()
