@@ -8,18 +8,25 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:61289@db:5432/task_db
       - JWT_SECRET={JWT_SECRET}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN} # <--- Add this
+      - SPLUNK_URL=${SPLUNK_URL}             #
     depends_on:
       - db
     volumes:
       - .:/app
       - /app/node_modules
+    env_file:
+      - .env
   splunk:
     image: splunk/splunk:latest
     container_name: splunk
     environment:
+      # Use these exact flags to bypass the license gate
       - SPLUNK_START_ARGS=--accept-license
-      - SPLUNK_PASSWORD=changeme # Use a strong password in production
-      - SPLUNK_HEC_TOKEN=your_hec_token_here # Replace with your desired HEC token
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
+      - SPLUNK_PASSWORD=Payx2026! # Use a strong password in production
+      # SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN} # Replace with your desired HEC token
+      # SPLUNK_URL=${SPLUNK_URL}
     ports:
       - "8000:8000"  # Splunk Web Interface
       - "8088:8088"  # HEC Port
