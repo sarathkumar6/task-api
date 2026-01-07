@@ -81,4 +81,4 @@ jobs:
 
       - name: Cleanup
         if: always() # This MUST be last
-        run: docker-compose down
+        run: docker compose down
