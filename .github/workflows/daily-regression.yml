@@ -1,0 +1,43 @@
+name: Daily Task API Regression Tests
+
+on:
+  schedule:
+    - cron: '0 19 * * *'  # Runs daily at 19:00 UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  regression-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Compose
+        uses: docker/setup-buildx-action@v3
+
+      - name: Spin up Infrastructure
+        env:
+          SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
+          SPLUNK_URL: ${{ secrets.SPLUNK_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          docker-compose up -d db splunk
+          echo "Waiting for database to be ready..."
+          until docker exec $(docker-compose ps -q db) pg_isready -U postgres; do
+            sleep 2
+          done
+          sleep 15 # Short buffer for Splunk HEC to warm up
+        
+      - name: Run Regression Tests
+        env:
+            SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
+            SPLUNK_URL: ${{ secrets.SPLUNK_URL }}
+            DATABASE_URL: ${{ secrets.DATABASE_URL }}
+            NODE_ENV: development # Ensure the app runs in development mode and logs go to splunk
+        run: |
+            docker-compose run --rm api npm test
+        
+      - name: Cleanup
+        if: always()
+        run: docker-compose down
