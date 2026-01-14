@@ -37,9 +37,14 @@ spec:
             secretKeyRef:
               name: task-api-secrets
               key: POSTGRES_PASSWORD
+        # THE FIX: Tell Postgres to use a subdirectory
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
         volumeMounts:
         - name: postgres-storage # This MUST match the name in volumeClaimTemplates below
           mountPath: /var/lib/postgresql/data
+          # THE FIX: Mount only the pgdata subfolder for the actual DB data
+          subPath: pgdata
   # This template automatically creates the PVC for you
   volumeClaimTemplates:
   - metadata:

@@ -16,6 +16,8 @@ spec:
       labels:
         app: task-api
     spec:
+      imagePullSecrets:
+      - name: github-pull-secret
       initContainers:
       - name: db-migration
         image: ghcr.io/sarathkumar6/task-api:latest
