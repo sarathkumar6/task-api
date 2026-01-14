@@ -1,0 +1,61 @@
+# The Orchestration file for Postgres Database on OpenShift
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-api
+  labels:
+    app: task-api
+spec:
+  replicas: 2 # Never run only one instance in production
+  selector:
+    matchLabels:
+      app: task-api
+  template:
+    metadata:
+      labels:
+        app: task-api
+    spec:
+      initContainers:
+      - name: db-migration
+        image: ghcr.io/sarathkumar6/task-api:latest
+        command: ["/bin/sh", "-c"]
+        args: ["npx prisma migrate deploy"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: task-api-secrets
+              key: DATABASE_URL
+      containers:
+      - name: task-api
+        image: ghcr.io/sarathkumar6/task-api:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: task-api-secrets
+              key: DATABASE_URL
+        #Readiness probe: Don't send traffic until the DB connection is live
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        # Liveness probe: Restart if the app becomes unhealthy
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

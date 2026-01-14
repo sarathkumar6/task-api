@@ -1,0 +1,29 @@
+# The Front Door
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-api-service
+spec:
+  selector:
+    app: task-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+# # The Valut it - it securely stores your DATABASE_URL so it is not hardcoded in the deployment files.
+# 2. THE SERVICE (The stable phone book entry for Postgres DB)
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: task-api-route
+spec:
+# OpenShift will auto-generate a hostname if you leave this blank
+  to:
+    kind: Service
+    name: task-api-service
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect # Forces all HTTP traffic to HTTPS   

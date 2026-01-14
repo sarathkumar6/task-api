@@ -1,0 +1,51 @@
+# 1. THE SERVICE (The stable "phone book" entry)
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+---
+# 2. THE STATEFULSET (The Engine + Storage Logic)
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: "postgres-db"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_PASSWORD 
+          valueFrom:
+            secretKeyRef:
+              name: task-api-secrets
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: postgres-storage # This MUST match the name in volumeClaimTemplates below
+          mountPath: /var/lib/postgresql/data
+  # This template automatically creates the PVC for you
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi

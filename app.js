@@ -9,6 +9,7 @@ const taskRoutes = require("./routes/tasks");
 const labRoutes = require("./routes/lab");
 const simulateErrorRoutes = require("./routes/simulateError");
 const debugStackRoutes = require("./routes/debug");
+const db = require("./db");
 const shopRoutes = require("./routes/shop");
 const { authenticationToken } = require("./middleware/authMiddleware");
 const { globalLimiter, authLimiter } = require("./middleware/limiter");
@@ -23,6 +24,35 @@ const morganMiddleware = morgan(
   },
 );
 const app = express(); // Returns express application instance
+// Health Endpoint
+app.get("/health", async (request, response) => {
+  try {
+    logger.info(">>> THE DB HEALTH CHECK ROUTE WAS TRIGGERED <<<"); // Add this
+    // 1. Check Database Connectivity
+    // We use a raw query 'SELECT 1' because it's the fastest way 
+    // to verify the connection without heavy processing.
+    const resp = await db.$queryRaw`SELECT 1`;
+
+    // 2. (Optional) Check other dependencies like Redis/Kafka here
+    
+    response.status(200).json({
+      status: 'UP',
+      database: 'CONNECTED',
+      version: '2.0-db-check',
+      timestamp: new Date().toISOString(),
+        dbResponse: resp
+    });
+  } catch (error) {
+    console.error('Health Check Failed:', error);
+    
+    // Returning a non-200 status tells OpenShift the pod is NOT ready
+    response.status(503).json({
+      status: 'DOWN',
+      database: 'DISCONNECTED',
+      error: error.message
+    });
+  }
+});
 app.use(helmet());
 app.set("trust proxy", 1);
 const requestBodyParser = express.json(); // Parses request body as JSON
@@ -62,10 +92,6 @@ app.use("/tasks", taskRoutes);
 // Lab Routes
 app.use("/lab", labRoutes);
 
-// Health Endpoint
-app.get("/health", (request, response) => {
-  response.json({ status: "OK", message: "Server is healthy" });
-});
 
 // Debug stack endpoint
 // NOTE: app.use is like mouting a small router application
@@ -77,9 +103,40 @@ app.get("/simulate-error", simulateErrorRoutes);
 
 // Conditional listen - if you run tests and you might run into Port 3000 already in use
 if (require.main === module) {
-  app.listen(3000, () => {
+  const server = app.listen(3000, () => {
     logger.info("Server is running on port 3000");
+    console.log("ACTIVE HANDLES:", process._getActiveHandles().length);
   });
+
+  // Graceful Shutdown Function
+  const handleShutdown = (signal) => {
+    logger.info(`${signal} received. Starting graceful shutdown...`);
+
+    // Stop accepting new connections
+    server.close(async () => {
+      logger.info("HTTP server closed.");
+
+      try {
+        // Disconnect from Postgres
+        await db.$disconnect();
+        logger.info("Prisma disconnected. Process exiting cleanly.");
+        process.exit(0);
+      } catch (err) {
+        logger.error("Error during Prisma disconnect:", err);
+        process.exit(1);
+      }
+    });
+
+    // Forced shutdown after 10 seconds (Safety net for hung connections)
+    setTimeout(() => {
+      logger.error("Forceful shutdown: Connections took too long to close.");
+      process.exit(1);
+    }, 10000);
+  };
+
+  // Listen for signals from OpenShift / Docker
+  process.on("SIGTERM", () => handleShutdown("SIGTERM"));
+  process.on("SIGINT", () => handleShutdown("SIGINT"));
 }
 
 // 2. 404 Handler (If no route matched above)
