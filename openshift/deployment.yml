@@ -20,7 +20,11 @@ spec:
       - name: db-migration
         image: ghcr.io/sarathkumar6/task-api:latest
         command: ["/bin/sh", "-c"]
-        args: ["npx prisma migrate deploy"]
+        args: 
+          - |
+            echo "Starting migrations..."
+            npx prisma migrate deploy
+            echo "Migrations complete."
         env:
         - name: DATABASE_URL
           valueFrom:
